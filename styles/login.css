@@ -43,7 +43,7 @@
     align-items: center;
 }
 
-/* ====== Tabs (login/cadastro) ====== */
+/* ====== Tabs ====== */
 .stTabs [data-baseweb="tab-list"] {
     justify-content: center;
 }
@@ -79,6 +79,6 @@ button[kind="primary"]:hover {
     }
 
     .logo-container {
-        order: -1; /* logo acima do form em mobile */
+        order: -1;
     }
 }
