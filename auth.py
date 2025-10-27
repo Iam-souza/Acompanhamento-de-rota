@@ -209,7 +209,7 @@ class AuthManager:
 
         # Logo à direita
         st.markdown('<div class="logo-container">', unsafe_allow_html=True)
-        st.image("uploads_img/Logo da VIA Serviços Integrados.png")
+        st.image("Uploads_img/Logo da VIA Serviços Integrados.png")
         st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)  # fecha auth-container
