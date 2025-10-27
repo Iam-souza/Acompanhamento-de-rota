@@ -52,6 +52,9 @@ def main():
     with tab3:
         show_analytics_section()
 
+# -----------------------------
+# Seção de Upload
+# -----------------------------
 def show_upload_section():
     """Seção de upload de relatórios"""
     st.header("📤 Upload de Relatórios")
@@ -141,6 +144,9 @@ def consolidate_data():
     except Exception as e:
         st.error(f"❌ Erro na consolidação: {str(e)}")
 
+# -----------------------------
+# Seção de Visualização
+# -----------------------------
 def show_visualization_section():
     """Seção de visualização e edição"""
     st.header("📊 Visualização e Edição de Dados")
@@ -154,16 +160,16 @@ def show_visualization_section():
         
         with col2:
             tecnicos = db.get_unique_values("tecnico")
-            tecnico_filter = filter_manager.create_select_filter("👷 Técnico", tecnicos, key="tecnico_filter")
+            tecnico_filter = ui.create_select_filter("👷 Técnico", tecnicos, key="tecnico_filter")
             
             supervisores = db.get_unique_values("supervisor")
-            supervisor_filter = filter_manager.create_select_filter("👨‍💼 Supervisor", supervisores, key="supervisor_filter")
+            supervisor_filter = ui.create_select_filter("👨‍💼 Supervisor", supervisores, key="supervisor_filter")
         
         with col3:
             cod_status_list = db.get_unique_values("cod_status")
-            status_filter = filter_manager.create_select_filter("📋 Status", cod_status_list, key="status_filter")
+            status_filter = ui.create_select_filter("📋 Status", cod_status_list, key="status_filter")
             
-            contrato_filter = filter_manager.create_text_filter("📄 Contrato", key="contrato_filter")
+            contrato_filter = ui.create_text_filter("📄 Contrato", key="contrato_filter")
     
     # Monta filtros para consulta
     filters = {}
@@ -281,109 +287,39 @@ def save_changes(original_df: pd.DataFrame, edited_df: pd.DataFrame):
                     if db.update_relatorio_consolidado(row["id"], updates):
                         changes_count += 1
         
-        if changes_count > 0:
-            st.success(f"✅ {changes_count} registros atualizados com sucesso!")
-            st.rerun()
-        else:
-            st.info("ℹ️ Nenhuma alteração detectada.")
-            
+        st.success(f"✅ {changes_count} registro(s) atualizado(s) com sucesso!")
+        
     except Exception as e:
         st.error(f"❌ Erro ao salvar alterações: {str(e)}")
 
-def export_data(df: pd.DataFrame, format_type: str):
-    """Exporta dados filtrados"""
+def export_data(df: pd.DataFrame, file_type: str):
+    """Exporta dados para Excel ou CSV"""
     try:
-        if format_type == "excel":
-            excel_data = processor.export_to_excel(df)
-            filename = f"relatorio_consolidado_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
-            
+        if file_type == "excel":
+            content = processor.export_to_excel(df)
             st.download_button(
-                label="📥 Download Excel",
-                data=excel_data,
-                file_name=filename,
+                label="📥 Baixar Excel",
+                data=content,
+                file_name=f"relatorio_consolidado_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-        
-        elif format_type == "csv":
-            csv_data = processor.export_to_csv(df)
-            filename = f"relatorio_consolidado_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-            
+        elif file_type == "csv":
+            content = processor.export_to_csv(df)
             st.download_button(
-                label="📥 Download CSV",
-                data=csv_data,
-                file_name=filename,
+                label="📥 Baixar CSV",
+                data=content,
+                file_name=f"relatorio_consolidado_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
                 mime="text/csv"
             )
-        
-        st.success("✅ Arquivo preparado para download!")
-        
     except Exception as e:
         st.error(f"❌ Erro ao exportar dados: {str(e)}")
 
+# -----------------------------
+# Seção de Análises
+# -----------------------------
 def show_analytics_section():
-    """Seção de análises e relatórios"""
-    st.header("📈 Análises e Relatórios")
-    
-    # Busca todos os dados para análise
-    df = db.get_relatorios_consolidados()
-    
-    if not df.empty:
-        # Métricas gerais
-        col1, col2, col3, col4 = st.columns(4)
-        
-        with col1:
-            st.metric("📊 Total Geral", len(df))
-        
-        with col2:
-            if 'tratativa' in df.columns:
-                resolvidos = len(df[df['tratativa'] == 'Resolvido'])
-                st.metric("✅ Resolvidos", resolvidos)
-        
-        with col3:
-            if 'tratativa' in df.columns:
-                nao_resolvidos = len(df[df['tratativa'] == 'Não resolvido'])
-                st.metric("❌ Não Resolvidos", nao_resolvidos)
-        
-        with col4:
-            if 'ativo' in df.columns:
-                com_sucesso = len(df[df['ativo'] == 'Com sucesso'])
-                st.metric("🎯 Com Sucesso", com_sucesso)
-        
-        st.markdown("---")
-        
-        # Gráficos de análise
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            if 'tratativa' in df.columns:
-                st.subheader("📊 Distribuição de Tratativas")
-                tratativa_counts = df['tratativa'].value_counts()
-                st.bar_chart(tratativa_counts)
-        
-        with col2:
-            if 'responsavel' in df.columns:
-                st.subheader("👥 Distribuição por Responsável")
-                responsavel_counts = df['responsavel'].value_counts()
-                st.bar_chart(responsavel_counts)
-        
-        # Tabela de resumo por técnico
-        if 'tecnico' in df.columns:
-            st.subheader("📋 Resumo por Técnico")
-            
-            summary = df.groupby('tecnico').agg({
-                'id': 'count',
-                'tratativa': lambda x: (x == 'Resolvido').sum(),
-                'ativo': lambda x: (x == 'Com sucesso').sum()
-            }).rename(columns={
-                'id': 'Total',
-                'tratativa': 'Resolvidos',
-                'ativo': 'Com Sucesso'
-            })
-            
-            st.dataframe(summary, width='stretch')
-    
-    else:
-        st.info("ℹ️ Nenhum dado disponível para análise.")
+    st.header("📈 Análises")
+    st.info("🔹 Em desenvolvimento. Aqui você poderá criar dashboards e gráficos baseados nos relatórios consolidados.")
 
 if __name__ == "__main__":
     main()
