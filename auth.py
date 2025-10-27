@@ -75,7 +75,7 @@ class AuthManager:
         st.experimental_rerun()
 
     # ========================================================
-    # 💻 Interface de Login + Cadastro (corrigida com st.columns)
+    # 💻 Interface de Login + Cadastro (corrigida com st.columns e use_container_width)
     # ========================================================
     def show_login_form(self):
         """Exibe a interface estilizada de login e cadastro usando colunas do Streamlit."""
@@ -88,7 +88,7 @@ class AuthManager:
         else:
             st.warning("⚠️ Arquivo 'styles/login.css' não encontrado. O layout pode ficar sem estilo.")
 
-        # ----------- Usar colunas para forçar layout estável (esquerda: form, direita: logo) -----------
+        # ----------- Usar colunas para layout estável -----------
         col_left, col_right = st.columns([1, 1], gap="large")
 
         # ----- Caixa de Login/Cadastro (coluna esquerda) -----
@@ -150,14 +150,10 @@ class AuthManager:
         # ----- Logo (coluna direita) -----
         with col_right:
             st.markdown('<div class="logo-wrapper">', unsafe_allow_html=True)
-            # Ajuste: use st.image com width e uma mensagem alternativa caso o arquivo não exista
             logo_path = os.path.join("uploads_img", "Logo da VIA Serviços Integrados.png")
             if os.path.exists(logo_path):
-                st.image(logo_path, use_column_width=False, width=220)
+                st.image(logo_path, use_container_width=True)
             else:
-                # se imagem local não existir, tenta URL externa
-                st.image("https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png", width=220)
+                st.image("https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png", use_container_width=True)
                 st.warning("Logo local não encontrado em 'uploads_img/'. Usando imagem alternativa.")
             st.markdown('</div>', unsafe_allow_html=True)
-
-        # obs: Streamlit empilha automaticamente colunas em telas pequenas (mobile)
