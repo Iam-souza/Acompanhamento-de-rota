@@ -13,8 +13,8 @@ class SupabaseDB:
 
     def __init__(self):
         # Substitua as variáveis de ambiente ou mantenha as strings se você já estiver usando assim.
-        self.url = os.getenv("SUPABASE_URL", "https://bekjfhrfpmuxrgcsbyns.supabase.co")
-        self.key = os.getenv("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJla2pmaHJmcG11eHJnZ3NieW5zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMjM2MTYsImV4cCI6MjA3Njg5OTYxNn0.70A7KcikrTLGZMZO3APTnURNfYXOL2nB6Q4cbgprPBE")
+        self.url = os.getenv("SUPABASE_URL", "https://juztvqedchxluixbrzfg.supabase.co")
+        self.key = os.getenv("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1enR2cWVkY2h4bHVpeGJyemZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMDUwNjEsImV4cCI6MjA3Njg4MTA2MX0.9XTz8UsLvEV-zJloDMSvM54AhLobmB5HETynKA7wCyc")
         self.client: Client = create_client(self.url, self.key)
 
         # Tabelas existentes no seu projeto
