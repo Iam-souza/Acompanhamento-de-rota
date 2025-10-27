@@ -1,17 +1,31 @@
-/* Container da caixa (aplicado dentro da coluna esquerda) */
-.auth-box {
-    width: 100%;
-    max-width: 420px; /* maior para não ficar apertado em desktop */
-    padding: 22px;
-    border-radius: 12px;
-    background-color: #ffffff;
-    box-shadow: 0px 6px 18px rgba(0,0,0,0.08);
-    margin: 0 auto;
+/* -------------------------------
+   Global styles for Streamlit app
+   - Login box
+   - Sidebar, tabs, buttons, tables
+   ------------------------------- */
+
+/* Page background and base */
+html, body, .stApp {
+    height: 100%;
+    background: linear-gradient(180deg, #f7fafc 0%, #ffffff 40%, #fffaf0 100%);
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    color: #222;
 }
 
-/* Título e subtítulo */
+/* Auth box (login / register) */
+.auth-box {
+    width: 100%;
+    max-width: 520px;
+    padding: 28px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.92);
+    box-shadow: 0 10px 30px rgba(16,24,40,0.08);
+    margin: 18px auto;
+    border: 1px solid rgba(16,24,40,0.04);
+}
+
 .auth-title {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
     margin-bottom: 6px;
     text-align: center;
@@ -20,12 +34,11 @@
 
 .auth-sub {
     font-size: 13px;
-    color: #666;
+    color: #556;
     text-align: center;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
 }
 
-/* Logo wrapper (coluna direita) */
 .logo-wrapper {
     display: flex;
     justify-content: center;
@@ -33,35 +46,61 @@
     height: 100%;
 }
 
-/* Força centralização da imagem dentro da coluna direita */
-.logo-wrapper img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-}
+.logo-wrapper img { max-width: 100%; height: auto; border-radius: 8px; }
 
-/* Estiliza botões primários do Streamlit (só visual) */
-button[kind="primary"] {
-    background-color: #d32f2f !important;
+/* Buttons primary - aumenta contraste e cantos arredondados */
+button[kind="primary"], .stButton>button {
+    background-color: #c62828 !important;
     color: #fff !important;
-    border-radius: 8px !important;
+    border-radius: 10px !important;
     border: none !important;
     font-weight: 600 !important;
+    padding: .6rem 1rem !important;
 }
 
-/* Tabs centralizadas */
-.stTabs [data-baseweb="tab-list"] {
-    justify-content: center;
-}
-.stTabs [data-baseweb="tab"] {
-    font-size: 13px;
+/* Tabs */
+.stTabs [data-baseweb="tab-list"] { justify-content: center; }
+.stTabs [data-baseweb="tab"] { font-size: 14px; padding: .45rem .75rem; }
+
+/* Sidebar tweaks */
+div[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85));
+    border-right: 1px solid rgba(16,24,40,0.04);
 }
 
-/* Pequenas responsividades extras */
-@media (max-width: 768px) {
-    .auth-box {
-        max-width: 92%;
-        padding: 18px;
-    }
-    .auth-title { font-size: 18px; }
+/* Headers and section spacing */
+h1, h2, h3 { color: #1b1b1b; }
+.stMarkdown h1, .stMarkdown h2 { margin-top: 0.2rem; }
+
+/* Dataframe / editor styling (small improvements) */
+div[data-testid="stDataFrameContainer"] table {
+    border-collapse: collapse;
 }
+div[data-testid="stDataFrameContainer"] th {
+    background: rgba(198,28,28,0.06);
+}
+
+/* Form inputs: aumentar legibilidade */
+input, textarea, select {
+    font-family: inherit !important;
+}
+
+/* Small screens */
+@media (max-width: 900px) {
+    .auth-box { max-width: 92%; padding: 18px; }
+    .stCanvas { padding: 8px !important; }
+}
+
+/* Accessibility focus states */
+button:focus, input:focus, select:focus, textarea:focus {
+    outline: 3px solid rgba(198,28,28,0.12);
+    outline-offset: 2px;
+}
+
+/* Utility: centered small note */
+.small-note { font-size: 12px; color: #666; text-align: center; margin-top: 8px; }
+
+/* Ensures markdown separators look good */
+hr { border: none; height: 1px; background: rgba(16,24,40,0.06); margin: 18px 0; }
+
+/* End of styles */

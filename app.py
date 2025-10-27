@@ -5,6 +5,7 @@ from typing import Optional, Dict, Any
 from auth import AuthManager
 from database import SupabaseDB
 from utils import DataProcessor, FilterManager, UIComponents
+import os
 
 # -----------------------------
 # Configuração da página
@@ -15,6 +16,18 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# -----------------------------
+# Carrega CSS global (aplica a toda a aplicação)
+# -----------------------------
+css_path = os.path.join("styles", "login.css")
+if os.path.exists(css_path):
+    try:
+        with open(css_path, "r", encoding="utf-8") as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    except Exception:
+        # Falha silenciosa: não bloquear a aplicação por conta do CSS
+        pass
 
 # -----------------------------
 # Inicialização dos componentes
