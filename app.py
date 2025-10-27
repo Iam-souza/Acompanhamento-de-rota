@@ -10,8 +10,8 @@ from utils import DataProcessor, FilterManager, UIComponents
 # Configuração da página
 # -----------------------------
 st.set_page_config(
-    page_title="Sistema de Acompanhamento de Rotas",
-    page_icon="🚚",
+    page_title="Via Representações",
+    page_icon="Logo da Via Serviços Integrados.png",
     layout="wide",
     initial_sidebar_state="expanded"
 )
