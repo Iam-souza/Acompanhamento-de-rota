@@ -97,46 +97,60 @@ class AuthManager:
     # -----------------------------
     # UI: formulário Login + Cadastro
     # -----------------------------
-def show_login_form(self):
-    import os
-
-    logo_path = os.path.join("uploads_img", "logo_via.png")
-
-    # CSS para estilização
-    st.markdown(
+    def show_login_form(self):
         """
-        <style>
-        .auth-box {
-            max-width: 400px;
-            padding: 2rem;
-            border-radius: 14px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-            background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
-        }
-        .auth-title {
-            text-align: center;
-            font-weight: 700;
-            font-size: 20px;
-            margin-bottom: 6px;
-            color: #111827;
-        }
-        .auth-sub {
-            text-align: center;
-            color: #6b7280;
-            margin-bottom: 1.2rem;
-            font-size: 13px;
-        }
-        .small-note { font-size:12px; color:#6b7280; text-align:center; }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+        Exibe tela de login/cadastro com formulário à esquerda e logo à direita.
+        """
+        st.markdown(
+            """
+            <style>
+            .auth-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                height: 100vh;
+                padding: 0 5%;
+            }
+            .auth-box {
+                width: 400px;
+                padding: 2rem;
+                border-radius: 14px;
+                box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+                background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
+            }
+            .auth-title {
+                text-align: center;
+                font-weight: 700;
+                font-size: 20px;
+                margin-bottom: 6px;
+                color: #111827;
+            }
+            .auth-sub {
+                text-align: center;
+                color: #6b7280;
+                margin-bottom: 1.2rem;
+                font-size: 13px;
+            }
+            .small-note { font-size:12px; color:#6b7280; text-align:center; }
+            .logo-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+            }
+            .logo-container img {
+                max-width: 350px;
+                max-height: 350px;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
 
-    # Divide a tela em colunas
-    col1, col2 = st.columns([1, 2])  # col1 menor para o formulário à esquerda
+        # Container principal com flex
+        st.markdown('<div class="auth-container">', unsafe_allow_html=True)
 
-    with col1:
-        st.image(logo_path, width=200)
+        # Formulário à esquerda
         st.markdown('<div class="auth-box">', unsafe_allow_html=True)
         st.markdown('<div class="auth-title">🚚 Sistema de Acompanhamento de Rotas</div>', unsafe_allow_html=True)
         st.markdown('<div class="auth-sub">Acesse sua conta ou crie um novo usuário</div>', unsafe_allow_html=True)
@@ -152,7 +166,7 @@ def show_login_form(self):
 
                 if submitted:
                     if not email or not password:
-                        st.error("❌ Preencha todos os campos.")
+                        st.error("❌ Por favor, preencha todos os campos.")
                     else:
                         user = self.login(email.strip().lower(), password)
                         if user:
@@ -189,10 +203,9 @@ def show_login_form(self):
                                 st.session_state[self.session_key] = user
                                 st.experimental_rerun()
                         else:
-                            st.error("❌ Email já em uso.")
+                            st.error("❌ Não foi possível criar a conta. O email já pode estar em uso.")
 
-        st.markdown('</div>', unsafe_allow_html=True)
-  # fecha auth-box
+        st.markdown('</div>', unsafe_allow_html=True)  # fecha auth-box
 
         # Logo à direita
         st.markdown('<div class="logo-container">', unsafe_allow_html=True)
