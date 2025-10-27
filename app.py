@@ -98,7 +98,7 @@ def show_upload_section():
 """)
 
 def save_report(df: pd.DataFrame):
-    """Salva relatório no banco de dados"""
+    """Salva relatório no banco de dados (com atualização de registros existentes)"""
     try:
         records = processor.prepare_data_for_insert(df)
         success_count = 0
@@ -107,7 +107,8 @@ def save_report(df: pd.DataFrame):
         status_text = st.empty()
         
         for i, record in enumerate(records):
-            if db.insert_relatorio_raw(record):
+            # Aqui usamos o novo upsert que atualiza registros existentes
+            if db.upsert_relatorio_raw(record):
                 success_count += 1
             
             # Atualiza progresso
@@ -119,13 +120,13 @@ def save_report(df: pd.DataFrame):
         status_text.empty()
         
         if success_count > 0:
-            st.success(f"✅ {success_count} registros salvos com sucesso!")
+            st.success(f"✅ {success_count} registros salvos/atualizados com sucesso!")
             
             # Auto-consolidação
             if st.button("🔄 Consolidar Automaticamente", key="auto_consolidate"):
                 consolidate_data()
         else:
-            st.error("❌ Nenhum registro foi salvo.")
+            st.error("❌ Nenhum registro foi salvo/atualizado.")
             
     except Exception as e:
         st.error(f"❌ Erro ao salvar relatório: {str(e)}")

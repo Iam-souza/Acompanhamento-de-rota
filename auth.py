@@ -99,16 +99,20 @@ class AuthManager:
     # -----------------------------
     def show_login_form(self):
         """
-        Exibe tela centralizada com abas: Login | Cadastro.
-        Ao logar, salva em st.session_state[self.session_key] o usuário retornado por login().
+        Exibe tela de login/cadastro com formulário à esquerda e logo à direita.
         """
-        # CSS simples para centralizar e estilizar o formulário (Streamlit inline)
         st.markdown(
             """
             <style>
+            .auth-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                height: 100vh;
+                padding: 0 5%;
+            }
             .auth-box {
-                max-width: 520px;
-                margin: 3rem auto;
+                width: 400px;
                 padding: 2rem;
                 border-radius: 14px;
                 box-shadow: 0 8px 30px rgba(0,0,0,0.08);
@@ -127,68 +131,85 @@ class AuthManager:
                 margin-bottom: 1.2rem;
                 font-size: 13px;
             }
-            .small-note { font-size:12px; color:#6b7280; }
+            .small-note { font-size:12px; color:#6b7280; text-align:center; }
+            .logo-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+            }
+            .logo-container img {
+                max-width: 350px;
+                max-height: 350px;
+            }
             </style>
             """,
             unsafe_allow_html=True,
         )
 
-        with st.container():
-            st.markdown('<div class="auth-box">', unsafe_allow_html=True)
-            st.markdown('<div class="auth-title">🚚 Sistema de Acompanhamento de Rotas</div>', unsafe_allow_html=True)
-            st.markdown('<div class="auth-sub">Acesse sua conta ou crie um novo usuário</div>', unsafe_allow_html=True)
+        # Container principal com flex
+        st.markdown('<div class="auth-container">', unsafe_allow_html=True)
 
-            tabs = st.tabs(["🔑 Login", "📝 Cadastro"])
+        # Formulário à esquerda
+        st.markdown('<div class="auth-box">', unsafe_allow_html=True)
+        st.markdown('<div class="auth-title">🚚 Sistema de Acompanhamento de Rotas</div>', unsafe_allow_html=True)
+        st.markdown('<div class="auth-sub">Acesse sua conta ou crie um novo usuário</div>', unsafe_allow_html=True)
 
-            # ---------- LOGIN ----------
-            with tabs[0]:
-                with st.form("login_form"):
-                    email = st.text_input("📧 Email", placeholder="seu@email.com")
-                    password = st.text_input("🔒 Senha", type="password", placeholder="Sua senha")
-                    submitted = st.form_submit_button("🚀 Entrar")
+        tabs = st.tabs(["🔑 Login", "📝 Cadastro"])
 
-                    if submitted:
-                        if not email or not password:
-                            st.error("❌ Por favor, preencha todos os campos.")
+        # ---------- LOGIN ----------
+        with tabs[0]:
+            with st.form("login_form"):
+                email = st.text_input("📧 Email", placeholder="seu@email.com")
+                password = st.text_input("🔒 Senha", type="password", placeholder="Sua senha")
+                submitted = st.form_submit_button("🚀 Entrar")
+
+                if submitted:
+                    if not email or not password:
+                        st.error("❌ Por favor, preencha todos os campos.")
+                    else:
+                        user = self.login(email.strip().lower(), password)
+                        if user:
+                            st.session_state[self.session_key] = user
+                            st.success(f"✅ Bem-vindo, {user.get('nome','Usuário')}!")
+                            st.experimental_rerun()
                         else:
-                            user = self.login(email.strip().lower(), password)
+                            st.error("❌ Email ou senha incorretos.")
+
+            st.markdown('<p class="small-note">Conta de teste: admin@sistema.com / admin123</p>', unsafe_allow_html=True)
+
+        # ---------- CADASTRO ----------
+        with tabs[1]:
+            with st.form("register_form"):
+                nome = st.text_input("🧑 Nome completo", placeholder="Seu nome")
+                email_reg = st.text_input("📧 Email", placeholder="email@empresa.com")
+                password_reg = st.text_input("🔒 Senha", type="password", placeholder="Crie uma senha (mínimo 6 caracteres)")
+                confirm = st.text_input("🔒 Confirme a senha", type="password", placeholder="Repita a senha")
+                submitted_reg = st.form_submit_button("Criar Conta")
+
+                if submitted_reg:
+                    if not nome or not email_reg or not password_reg or not confirm:
+                        st.error("❌ Preencha todos os campos.")
+                    elif len(password_reg) < 6:
+                        st.warning("⚠️ A senha deve ter ao menos 6 caracteres.")
+                    elif password_reg != confirm:
+                        st.warning("⚠️ As senhas não coincidem.")
+                    else:
+                        success = self.register(nome=nome.strip(), email=email_reg.strip().lower(), password=password_reg)
+                        if success:
+                            st.success("✅ Conta criada com sucesso! Você já pode fazer login.")
+                            user = self.login(email_reg.strip().lower(), password_reg)
                             if user:
                                 st.session_state[self.session_key] = user
-                                st.success(f"✅ Bem-vindo, {user.get('nome','Usuário')}!")
                                 st.experimental_rerun()
-                            else:
-                                st.error("❌ Email ou senha incorretos.")
-
-                # Nota (opcional)
-                st.markdown('<p class="small-note">Conta de teste: admin@sistema.com / admin123</p>', unsafe_allow_html=True)
-
-            # ---------- CADASTRO ----------
-            with tabs[1]:
-                with st.form("register_form"):
-                    nome = st.text_input("🧑 Nome completo", placeholder="Seu nome")
-                    email_reg = st.text_input("📧 Email", placeholder="email@empresa.com")
-                    password_reg = st.text_input("🔒 Senha", type="password", placeholder="Crie uma senha (mínimo 6 caracteres)")
-                    confirm = st.text_input("🔒 Confirme a senha", type="password", placeholder="Repita a senha")
-                    submitted_reg = st.form_submit_button("Criar Conta")
-
-                    if submitted_reg:
-                        # Validações básicas
-                        if not nome or not email_reg or not password_reg or not confirm:
-                            st.error("❌ Preencha todos os campos.")
-                        elif len(password_reg) < 6:
-                            st.warning("⚠️ A senha deve ter ao menos 6 caracteres.")
-                        elif password_reg != confirm:
-                            st.warning("⚠️ As senhas não coincidem.")
                         else:
-                            success = self.register(nome=nome.strip(), email=email_reg.strip().lower(), password=password_reg)
-                            if success:
-                                st.success("✅ Conta criada com sucesso! Você já pode fazer login.")
-                                # opcional: auto-login
-                                user = self.login(email_reg.strip().lower(), password_reg)
-                                if user:
-                                    st.session_state[self.session_key] = user
-                                    st.experimental_rerun()
-                            else:
-                                st.error("❌ Não foi possível criar a conta. O email já pode estar em uso.")
+                            st.error("❌ Não foi possível criar a conta. O email já pode estar em uso.")
 
-            st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)  # fecha auth-box
+
+        # Logo à direita
+        st.markdown('<div class="logo-container">', unsafe_allow_html=True)
+        st.image("uploads_img/Logo da VIA Serviços Integrados.png")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        st.markdown('</div>', unsafe_allow_html=True)  # fecha auth-container
