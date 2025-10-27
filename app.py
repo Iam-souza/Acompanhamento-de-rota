@@ -11,7 +11,7 @@ from utils import DataProcessor, FilterManager, UIComponents
 # -----------------------------
 st.set_page_config(
     page_title="Via Representações",
-    page_icon="Logo da Via Serviços Integrados.png",
+    page_icon="Logo da VIA Serviços Integrados.png",
     layout="wide",
     initial_sidebar_state="expanded"
 )

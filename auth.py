@@ -98,9 +98,13 @@ class AuthManager:
     # UI: formulário Login + Cadastro
     # -----------------------------
     def show_login_form(self):
-        # Carregar CSS
-        with open("styles/login.css") as f:
+    css_path = os.path.join("styles", "login.css")
+    if os.path.exists(css_path):
+        with open(css_path) as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    else:
+        st.warning("Arquivo de estilo não encontrado em 'styles/login.css'")
+
 
         # Container principal
         st.markdown('<div class="auth-container">', unsafe_allow_html=True)
