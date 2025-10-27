@@ -1,49 +1,55 @@
-/* ====== Layout principal ====== */
-.auth-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    gap: 50px;
-    background-color: #f0f0f0;
-    font-family: "Segoe UI", sans-serif;
-}
-
-/* ====== Caixa do login/cadastro ====== */
+/* Container da caixa (aplicado dentro da coluna esquerda) */
 .auth-box {
-    max-width: 250px;
-    padding: 20px;
-    border-radius: 10px;
-    background-color: #f5f5f5;
-    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 420px; /* maior para não ficar apertado em desktop */
+    padding: 22px;
+    border-radius: 12px;
+    background-color: #ffffff;
+    box-shadow: 0px 6px 18px rgba(0,0,0,0.08);
+    margin: 0 auto;
 }
 
-/* ====== Título ====== */
+/* Título e subtítulo */
 .auth-title {
     font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 10px;
+    font-weight: 700;
+    margin-bottom: 6px;
     text-align: center;
     color: #b71c1c;
 }
 
-/* ====== Subtítulo ====== */
 .auth-sub {
-    font-size: 12px;
-    color: #555;
+    font-size: 13px;
+    color: #666;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
-/* ====== Logo ====== */
-.logo-container {
-    max-width: 250px;
+/* Logo wrapper (coluna direita) */
+.logo-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100%;
 }
 
-/* ====== Tabs ====== */
+/* Força centralização da imagem dentro da coluna direita */
+.logo-wrapper img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+/* Estiliza botões primários do Streamlit (só visual) */
+button[kind="primary"] {
+    background-color: #d32f2f !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+    border: none !important;
+    font-weight: 600 !important;
+}
+
+/* Tabs centralizadas */
 .stTabs [data-baseweb="tab-list"] {
     justify-content: center;
 }
@@ -51,34 +57,11 @@
     font-size: 13px;
 }
 
-/* ====== Botões ====== */
-button[kind="primary"] {
-    background-color: #d32f2f !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 8px !important;
-    font-weight: bold !important;
-}
-
-button[kind="primary"]:hover {
-    background-color: #b71c1c !important;
-}
-
-/* ====== Responsividade ====== */
+/* Pequenas responsividades extras */
 @media (max-width: 768px) {
-    .auth-container {
-        flex-direction: column;
-        gap: 20px;
-        height: auto;
-        padding: 40px 0;
-    }
-
     .auth-box {
-        width: 90%;
-        max-width: 350px;
+        max-width: 92%;
+        padding: 18px;
     }
-
-    .logo-container {
-        order: -1;
-    }
+    .auth-title { font-size: 18px; }
 }

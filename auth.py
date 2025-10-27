@@ -19,13 +19,11 @@ class AuthManager:
     # 🔐 Utilitários de senha
     # ========================================================
     def hash_password(self, password: str) -> str:
-        """Gera hash seguro da senha usando bcrypt."""
         salt = bcrypt.gensalt()
         hashed = bcrypt.hashpw(password.encode("utf-8"), salt)
         return hashed.decode("utf-8")
 
     def verify_password(self, password: str, hashed: str) -> bool:
-        """Verifica se a senha corresponde ao hash armazenado."""
         try:
             return bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
         except Exception:
@@ -35,34 +33,27 @@ class AuthManager:
     # 👤 Login / Registro
     # ========================================================
     def login(self, email: str, password: str) -> Optional[Dict]:
-        """Autentica usuário pelo e-mail e senha."""
         user = self.db.get_user_by_email(email)
         if not user:
             return None
-
         stored_hash = user.get("senha_hash") or user.get("senha")
         if not stored_hash:
             return None
-
         if self.verify_password(password, stored_hash):
-            user_data = {
+            return {
                 "id": user.get("id"),
                 "nome": user.get("nome"),
                 "email": user.get("email"),
                 "papel": user.get("papel", "usuario")
             }
-            return user_data
         return None
 
     def register(self, nome: str, email: str, password: str, papel: str = "usuario") -> bool:
-        """Registra novo usuário se ainda não existir."""
         if not nome or not email or not password:
             return False
-
         existing = self.db.get_user_by_email(email)
         if existing:
             return False
-
         senha_hash = self.hash_password(password)
         success = self.db.register_user(nome=nome, email=email, senha_hash=senha_hash, papel=papel)
         return success
@@ -79,16 +70,15 @@ class AuthManager:
         return None
 
     def logout(self):
-        """Finaliza sessão e recarrega o app."""
         if self.session_key in st.session_state:
             del st.session_state[self.session_key]
         st.experimental_rerun()
 
     # ========================================================
-    # 💻 Interface de Login + Cadastro
+    # 💻 Interface de Login + Cadastro (corrigida com st.columns)
     # ========================================================
     def show_login_form(self):
-        """Exibe a interface estilizada de login e cadastro."""
+        """Exibe a interface estilizada de login e cadastro usando colunas do Streamlit."""
 
         # ----------- Carregar CSS externo -----------
         css_path = os.path.join("styles", "login.css")
@@ -98,68 +88,76 @@ class AuthManager:
         else:
             st.warning("⚠️ Arquivo 'styles/login.css' não encontrado. O layout pode ficar sem estilo.")
 
-        # ----------- Layout principal -----------
-        st.markdown('<div class="auth-container">', unsafe_allow_html=True)
+        # ----------- Usar colunas para forçar layout estável (esquerda: form, direita: logo) -----------
+        col_left, col_right = st.columns([1, 1], gap="large")
 
-        # ----- Caixa de Login/Cadastro -----
-        st.markdown('<div class="auth-box">', unsafe_allow_html=True)
-        st.markdown('<div class="auth-title">🚚 Sistema de Acompanhamento de Rotas</div>', unsafe_allow_html=True)
-        st.markdown('<div class="auth-sub">Acesse sua conta ou crie um novo usuário</div>', unsafe_allow_html=True)
+        # ----- Caixa de Login/Cadastro (coluna esquerda) -----
+        with col_left:
+            st.markdown('<div class="auth-box">', unsafe_allow_html=True)
+            st.markdown('<div class="auth-title">🚚 Sistema de Acompanhamento de Rotas</div>', unsafe_allow_html=True)
+            st.markdown('<div class="auth-sub">Acesse sua conta ou crie um novo usuário</div>', unsafe_allow_html=True)
 
-        tabs = st.tabs(["🔑 Login", "📝 Cadastro"])
+            tabs = st.tabs(["🔑 Login", "📝 Cadastro"])
 
-        # ----------- LOGIN -----------
-        with tabs[0]:
-            with st.form("login_form"):
-                email = st.text_input("📧 Email", placeholder="seu@email.com")
-                password = st.text_input("🔒 Senha", type="password", placeholder="Sua senha")
-                submitted = st.form_submit_button("🚀 Entrar")
+            # LOGIN
+            with tabs[0]:
+                with st.form("login_form"):
+                    email = st.text_input("📧 Email", placeholder="seu@email.com")
+                    password = st.text_input("🔒 Senha", type="password", placeholder="Sua senha")
+                    submitted = st.form_submit_button("🚀 Entrar")
 
-                if submitted:
-                    if not email or not password:
-                        st.error("❌ Preencha todos os campos.")
-                    else:
-                        user = self.login(email.strip().lower(), password)
-                        if user:
-                            st.session_state[self.session_key] = user
-                            st.success(f"✅ Bem-vindo, {user.get('nome', 'Usuário')}!")
-                            st.experimental_rerun()
+                    if submitted:
+                        if not email or not password:
+                            st.error("❌ Preencha todos os campos.")
                         else:
-                            st.error("❌ Email ou senha incorretos.")
-
-        # ----------- CADASTRO -----------
-        with tabs[1]:
-            with st.form("register_form"):
-                nome = st.text_input("🧑 Nome completo", placeholder="Seu nome")
-                email_reg = st.text_input("📧 Email", placeholder="email@empresa.com")
-                password_reg = st.text_input("🔒 Senha", type="password", placeholder="Crie uma senha")
-                confirm = st.text_input("🔒 Confirme a senha", type="password", placeholder="Repita a senha")
-                submitted_reg = st.form_submit_button("Criar Conta")
-
-                if submitted_reg:
-                    if not nome or not email_reg or not password_reg or not confirm:
-                        st.error("❌ Preencha todos os campos.")
-                    elif len(password_reg) < 6:
-                        st.warning("⚠️ A senha deve ter pelo menos 6 caracteres.")
-                    elif password_reg != confirm:
-                        st.warning("⚠️ As senhas não coincidem.")
-                    else:
-                        success = self.register(nome.strip(), email_reg.strip().lower(), password_reg)
-                        if success:
-                            st.success("✅ Conta criada com sucesso!")
-                            user = self.login(email_reg.strip().lower(), password_reg)
+                            user = self.login(email.strip().lower(), password)
                             if user:
                                 st.session_state[self.session_key] = user
+                                st.success(f"✅ Bem-vindo, {user.get('nome', 'Usuário')}!")
                                 st.experimental_rerun()
+                            else:
+                                st.error("❌ Email ou senha incorretos.")
+
+            # CADASTRO
+            with tabs[1]:
+                with st.form("register_form"):
+                    nome = st.text_input("🧑 Nome completo", placeholder="Seu nome")
+                    email_reg = st.text_input("📧 Email", placeholder="email@empresa.com")
+                    password_reg = st.text_input("🔒 Senha", type="password", placeholder="Crie uma senha")
+                    confirm = st.text_input("🔒 Confirme a senha", type="password", placeholder="Repita a senha")
+                    submitted_reg = st.form_submit_button("Criar Conta")
+
+                    if submitted_reg:
+                        if not nome or not email_reg or not password_reg or not confirm:
+                            st.error("❌ Preencha todos os campos.")
+                        elif len(password_reg) < 6:
+                            st.warning("⚠️ A senha deve ter pelo menos 6 caracteres.")
+                        elif password_reg != confirm:
+                            st.warning("⚠️ As senhas não coincidem.")
                         else:
-                            st.error("❌ Este email já está cadastrado.")
+                            success = self.register(nome.strip(), email_reg.strip().lower(), password_reg)
+                            if success:
+                                st.success("✅ Conta criada com sucesso!")
+                                user = self.login(email_reg.strip().lower(), password_reg)
+                                if user:
+                                    st.session_state[self.session_key] = user
+                                    st.experimental_rerun()
+                            else:
+                                st.error("❌ Este email já está cadastrado.")
 
-        st.markdown('</div>', unsafe_allow_html=True)  # fecha auth-box
+            st.markdown('</div>', unsafe_allow_html=True)  # fecha auth-box
 
-        # ----------- LOGO (direita ou topo no mobile) -----------
-        st.markdown('<div class="logo-container">', unsafe_allow_html=True)
-        st.image("uploads_img/Logo da VIA Serviços Integrados.png")
-        st.markdown('</div>', unsafe_allow_html=True)
+        # ----- Logo (coluna direita) -----
+        with col_right:
+            st.markdown('<div class="logo-wrapper">', unsafe_allow_html=True)
+            # Ajuste: use st.image com width e uma mensagem alternativa caso o arquivo não exista
+            logo_path = os.path.join("uploads_img", "Logo da VIA Serviços Integrados.png")
+            if os.path.exists(logo_path):
+                st.image(logo_path, use_column_width=False, width=220)
+            else:
+                # se imagem local não existir, tenta URL externa
+                st.image("https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png", width=220)
+                st.warning("Logo local não encontrado em 'uploads_img/'. Usando imagem alternativa.")
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        # ----------- Fecha container principal -----------
-        st.markdown('</div>', unsafe_allow_html=True)
+        # obs: Streamlit empilha automaticamente colunas em telas pequenas (mobile)
