@@ -1,0 +1,38 @@
+.auth-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100vh;
+    padding: 0 5%;
+}
+.auth-box {
+    width: 400px;
+    padding: 2rem;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
+}
+.auth-title {
+    text-align: center;
+    font-weight: 700;
+    font-size: 20px;
+    margin-bottom: 6px;
+    color: #111827;
+}
+.auth-sub {
+    text-align: center;
+    color: #6b7280;
+    margin-bottom: 1.2rem;
+    font-size: 13px;
+}
+.small-note { font-size:12px; color:#6b7280; text-align:center; }
+.logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+.logo-container img {
+    max-width: 350px;
+    max-height: 350px;
+}

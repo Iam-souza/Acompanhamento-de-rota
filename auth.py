@@ -98,56 +98,11 @@ class AuthManager:
     # UI: formulário Login + Cadastro
     # -----------------------------
     def show_login_form(self):
-        """
-        Exibe tela de login/cadastro com formulário à esquerda e logo à direita.
-        """
-        st.markdown(
-            """
-            <style>
-            .auth-container {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                height: 100vh;
-                padding: 0 5%;
-            }
-            .auth-box {
-                width: 400px;
-                padding: 2rem;
-                border-radius: 14px;
-                box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-                background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
-            }
-            .auth-title {
-                text-align: center;
-                font-weight: 700;
-                font-size: 20px;
-                margin-bottom: 6px;
-                color: #111827;
-            }
-            .auth-sub {
-                text-align: center;
-                color: #6b7280;
-                margin-bottom: 1.2rem;
-                font-size: 13px;
-            }
-            .small-note { font-size:12px; color:#6b7280; text-align:center; }
-            .logo-container {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100%;
-            }
-            .logo-container img {
-                max-width: 350px;
-                max-height: 350px;
-            }
-            </style>
-            """,
-            unsafe_allow_html=True,
-        )
+        # Carregar CSS
+        with open("styles/login.css") as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-        # Container principal com flex
+        # Container principal
         st.markdown('<div class="auth-container">', unsafe_allow_html=True)
 
         # Formulário à esquerda
@@ -157,7 +112,7 @@ class AuthManager:
 
         tabs = st.tabs(["🔑 Login", "📝 Cadastro"])
 
-        # ---------- LOGIN ----------
+        # LOGIN
         with tabs[0]:
             with st.form("login_form"):
                 email = st.text_input("📧 Email", placeholder="seu@email.com")
@@ -166,7 +121,7 @@ class AuthManager:
 
                 if submitted:
                     if not email or not password:
-                        st.error("❌ Por favor, preencha todos os campos.")
+                        st.error("❌ Preencha todos os campos.")
                     else:
                         user = self.login(email.strip().lower(), password)
                         if user:
@@ -176,14 +131,12 @@ class AuthManager:
                         else:
                             st.error("❌ Email ou senha incorretos.")
 
-            st.markdown('<p class="small-note">Conta de teste: admin@sistema.com / admin123</p>', unsafe_allow_html=True)
-
-        # ---------- CADASTRO ----------
+        # CADASTRO
         with tabs[1]:
             with st.form("register_form"):
                 nome = st.text_input("🧑 Nome completo", placeholder="Seu nome")
                 email_reg = st.text_input("📧 Email", placeholder="email@empresa.com")
-                password_reg = st.text_input("🔒 Senha", type="password", placeholder="Crie uma senha (mínimo 6 caracteres)")
+                password_reg = st.text_input("🔒 Senha", type="password", placeholder="Crie uma senha")
                 confirm = st.text_input("🔒 Confirme a senha", type="password", placeholder="Repita a senha")
                 submitted_reg = st.form_submit_button("Criar Conta")
 
@@ -195,21 +148,22 @@ class AuthManager:
                     elif password_reg != confirm:
                         st.warning("⚠️ As senhas não coincidem.")
                     else:
-                        success = self.register(nome=nome.strip(), email=email_reg.strip().lower(), password=password_reg)
+                        success = self.register(nome.strip(), email_reg.strip().lower(), password_reg)
                         if success:
-                            st.success("✅ Conta criada com sucesso! Você já pode fazer login.")
+                            st.success("✅ Conta criada com sucesso!")
                             user = self.login(email_reg.strip().lower(), password_reg)
                             if user:
                                 st.session_state[self.session_key] = user
                                 st.experimental_rerun()
                         else:
-                            st.error("❌ Não foi possível criar a conta. O email já pode estar em uso.")
+                            st.error("❌ Email já em uso.")
 
         st.markdown('</div>', unsafe_allow_html=True)  # fecha auth-box
 
         # Logo à direita
         st.markdown('<div class="logo-container">', unsafe_allow_html=True)
-        st.image("Uploads_img/Logo da VIA Serviços Integrados.png")
+        st.image("uploads_img/Logo da VIA Serviços Integrados.png")
         st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)  # fecha auth-container
+
