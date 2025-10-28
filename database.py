@@ -13,8 +13,11 @@ class SupabaseDB:
     """
 
     def __init__(self):
-        self.url = os.getenv("SUPABASE_URL", "https://juztvqedchxluixbrzfg.supabase.co")
-        self.key = os.getenv("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1enR2cWVkY2h4bHVpeGJyemZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMDUwNjEsImV4cCI6MjA3Njg4MTA2MX0.9XTz8UsLvEV-zJloDMSvM54AhLobmB5HETynKA7wCyc")
+        self.url = os.getenv("SUPABASE_URL")
+        self.key = os.getenv("SUPABASE_KEY")
+        
+        if not self.url or not self.key:
+            raise ValueError("SUPABASE_URL e SUPABASE_KEY devem ser definidas nas variáveis de ambiente")
         self.client: Client = create_client(self.url, self.key)
 
         # Se fornecido, criar um client administrativo (service_role) para operações que precisam ignorar RLS

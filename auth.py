@@ -103,7 +103,7 @@ class AuthManager:
     def logout(self):
         if self.session_key in st.session_state:
             del st.session_state[self.session_key]
-        st.experimental_rerun()
+        st.rerun()
 
     # ========================================================
     # 💻 Interface de Login + Cadastro (corrigida com st.columns e use_container_width)
@@ -147,7 +147,7 @@ class AuthManager:
                             if user:
                                 st.session_state[self.session_key] = user
                                 st.success(f"✅ Bem-vindo, {user.get('nome', 'Usuário')}!")
-                                st.experimental_rerun()
+                                st.rerun()
                             else:
                                 st.error("❌ Email ou senha incorretos.")
 
@@ -174,7 +174,7 @@ class AuthManager:
                                 user = self.login(email_reg.strip().lower(), password_reg)
                                 if user:
                                     st.session_state[self.session_key] = user
-                                    st.experimental_rerun()
+                                    st.rerun()
                             else:
                                 st.error("❌ Este email já está cadastrado.")
 
@@ -185,8 +185,8 @@ class AuthManager:
             st.markdown('<div class="logo-wrapper">', unsafe_allow_html=True)
             logo_path = os.path.join("uploads_img", "Logo da VIA Serviços Integrados.png")
             if os.path.exists(logo_path):
-                st.image(logo_path, use_container_width=True)
+                st.image(logo_path, width='stretch')
             else:
-                st.image("https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png", use_container_width=True)
+                st.image("https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png", width='stretch')
                 st.warning("Logo local não encontrado em 'uploads_img/'. Usando imagem alternativa.")
             st.markdown('</div>', unsafe_allow_html=True)
