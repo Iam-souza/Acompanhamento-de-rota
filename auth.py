@@ -188,11 +188,5 @@ class AuthManager:
                 st.image(logo_path, use_container_width=True)
             else:
                 st.image("https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png", use_container_width=True)
-                export SUPABASE_URL="https://<SEU_PROJECT>.supabase.co"
-                export SUPABASE_KEY="<SUA_ANON_KEY>"
-                # opcional (recomendado para leitura / debug):
-                export SUPABASE_SERVICE_KEY="<SUA_SERVICE_ROLE_KEY>"                export SUPABASE_URL="https://<SEU_PROJECT>.supabase.co"
-                export SUPABASE_KEY="<SUA_ANON_KEY>"
-                # opcional (recomendado para leitura / debug):
-                export SUPABASE_SERVICE_KEY="<SUA_SERVICE_ROLE_KEY>"                st.warning("Logo local não encontrado em 'uploads_img/'. Usando imagem alternativa.")
+                st.warning("Logo local não encontrado em 'uploads_img/'. Usando imagem alternativa.")
             st.markdown('</div>', unsafe_allow_html=True)
