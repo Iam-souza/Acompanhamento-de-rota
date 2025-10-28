@@ -17,6 +17,16 @@ class SupabaseDB:
         self.key = os.getenv("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1enR2cWVkY2h4bHVpeGJyemZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMDUwNjEsImV4cCI6MjA3Njg4MTA2MX0.9XTz8UsLvEV-zJloDMSvM54AhLobmB5HETynKA7wCyc")
         self.client: Client = create_client(self.url, self.key)
 
+        # Se fornecido, criar um client administrativo (service_role) para operações que precisam ignorar RLS
+        self.service_key = os.getenv("SUPABASE_SERVICE_KEY")
+        self.admin_client: Optional[Client] = None
+        if self.service_key:
+            try:
+                self.admin_client = create_client(self.url, self.service_key)
+            except Exception:
+                # Não bloquear o app caso a criação do admin client falhe
+                self.admin_client = None
+
         # Tabelas existentes
         self.table_usuarios = "app_0c87e04f3a_usuarios"
         self.table_relatorios_raw = "app_0c87e04f3a_relatorios_raw"
@@ -47,10 +57,27 @@ class SupabaseDB:
                 "senha_hash": senha_hash,
                 "papel": papel
             }
-            self.client.table(self.table_usuarios).insert(payload).execute()
+            # Para inserir numa tabela com Row Level Security (RLS) habilitada
+            # é necessário usar uma chave com privilégios (service_role) ou
+            # garantir que exista uma policy que permita INSERT para o role usado.
+            # Preferimos usar o admin_client (service_role) quando disponível.
+            if self.admin_client:
+                self.admin_client.table(self.table_usuarios).insert(payload).execute()
+            else:
+                # Tenta inserir com o client padrão (anon). Esta operação pode falhar
+                # se o RLS estiver ativo e não houver policy que permita a inserção.
+                self.client.table(self.table_usuarios).insert(payload).execute()
             return True
         except Exception as e:
-            st.error(f"Erro ao registrar usuário: {str(e)}")
+            # Mostra mensagem mais informativa sobre RLS e service_role
+            msg = str(e)
+            if "row-level security" in msg or "violates row-level security" in msg:
+                st.error("Erro ao registrar usuário: violação de Row-Level Security (RLS).\n" \
+                         "Solução: configure uma policy que permita INSERTs para o role usado OU defina a variável\n" \
+                         "de ambiente SUPABASE_SERVICE_KEY com a service_role key e reinicie o app para que o servidor\n" \
+                         "use o client administrativo ao inserir usuários.")
+            else:
+                st.error(f"Erro ao registrar usuário: {msg}")
             return False
 
     # -----------------------------

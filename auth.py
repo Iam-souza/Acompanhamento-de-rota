@@ -91,12 +91,14 @@ class AuthManager:
         # ----------- Usar colunas para layout estável -----------
         col_left, col_right = st.columns([1, 1], gap="large")
 
-        # ----- Caixa de Login/Cadastro (coluna esquerda) -----
+        # ----- Cabeçalho (título) e Caixa de Login/Cadastro (coluna esquerda) -----
         with col_left:
-            st.markdown('<div class="auth-box">', unsafe_allow_html=True)
+            # Título e subtítulo ficam fora da caixa (card) para que o card apareça abaixo do título
             st.markdown('<div class="auth-title">🚚 Sistema de Acompanhamento de Rotas</div>', unsafe_allow_html=True)
             st.markdown('<div class="auth-sub">Acesse sua conta ou crie um novo usuário</div>', unsafe_allow_html=True)
 
+            # Agora abrimos o card que conterá as tabs e formulários
+            st.markdown('<div class="auth-box">', unsafe_allow_html=True)
             tabs = st.tabs(["🔑 Login", "📝 Cadastro"])
 
             # LOGIN
