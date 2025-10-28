@@ -21,6 +21,10 @@ Observação: este script é para testes locais. Não use em produção com dado
 """
 
 import os
+from dotenv import load_dotenv
+
+# Carrega .env automaticamente, se existir
+load_dotenv()
 import time
 import uuid
 from supabase import create_client

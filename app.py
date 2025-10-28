@@ -2,10 +2,15 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 from typing import Optional, Dict, Any
+from dotenv import load_dotenv
+import os
+
+# Carrega variáveis de ambiente do arquivo .env (se existir)
+load_dotenv()
+
 from auth import AuthManager
 from database import SupabaseDB
 from utils import DataProcessor, FilterManager, UIComponents
-import os
 
 # -----------------------------
 # Configuração da página
