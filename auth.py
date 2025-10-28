@@ -111,6 +111,13 @@ class AuthManager:
     def show_login_form(self):
         """Exibe a interface estilizada de login e cadastro usando colunas do Streamlit."""
 
+        # Verifica se estamos no modo de reset de senha
+        if st.session_state.get('show_reset', False):
+            from password_reset import PasswordResetManager
+            reset_manager = PasswordResetManager()
+            reset_manager.show_reset_password_form()
+            return
+
         # ----------- Carregar CSS externo -----------
         css_path = os.path.join("styles", "login.css")
         if os.path.exists(css_path):
@@ -137,7 +144,13 @@ class AuthManager:
                 with st.form("login_form"):
                     email = st.text_input("📧 Email", placeholder="seu@email.com")
                     password = st.text_input("🔒 Senha", type="password", placeholder="Sua senha")
-                    submitted = st.form_submit_button("🚀 Entrar")
+                    col1, col2 = st.columns([2, 1])
+                    with col1:
+                        submitted = st.form_submit_button("🚀 Entrar", use_container_width=True)
+                    with col2:
+                        if st.form_submit_button("Esqueci a senha", use_container_width=True):
+                            st.session_state['show_reset'] = True
+                            st.rerun()
 
                     if submitted:
                         if not email or not password:
@@ -180,13 +193,19 @@ class AuthManager:
 
             st.markdown('</div>', unsafe_allow_html=True)  # fecha auth-box
 
-        # ----- Logo (coluna direita) -----
+        # ----- Informações Adicionais (coluna direita) -----
         with col_right:
-            st.markdown('<div class="logo-wrapper">', unsafe_allow_html=True)
-            logo_path = os.path.join("uploads_img", "Logo da VIA Serviços Integrados.png")
-            if os.path.exists(logo_path):
-                st.image(logo_path, width='stretch')
-            else:
-                st.image("https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png", width='stretch')
-                st.warning("Logo local não encontrado em 'uploads_img/'. Usando imagem alternativa.")
+            st.markdown('<div class="welcome-box">', unsafe_allow_html=True)
+            st.markdown('<h1>👋 Bem-vindo!</h1>', unsafe_allow_html=True)
+            st.markdown("""
+                <div class="welcome-text">
+                    <p>Sistema de Acompanhamento de Rotas</p>
+                    <ul>
+                        <li>📊 Gestão eficiente de rotas</li>
+                        <li>📱 Acesso em qualquer dispositivo</li>
+                        <li>🔄 Atualizações em tempo real</li>
+                        <li>📈 Relatórios detalhados</li>
+                    </ul>
+                </div>
+            """, unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
