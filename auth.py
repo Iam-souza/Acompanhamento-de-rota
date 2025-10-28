@@ -49,11 +49,42 @@ class AuthManager:
         return None
 
     def register(self, nome: str, email: str, password: str, papel: str = "usuario") -> bool:
+        # Validações básicas
         if not nome or not email or not password:
             return False
+
+        # Se já existe usuário localmente, rejeita
         existing = self.db.get_user_by_email(email)
         if existing:
             return False
+
+        # Preferimos criar a conta pelo Supabase Auth (sign_up) e deixar o trigger
+        # no banco criar o perfil em app_..._usuarios. Isso evita problemas com RLS.
+        try:
+            # tentamos usar o client do supabase para criar a conta no Auth
+            # quando disponível. A assinatura da função pode variar conforme a versão da lib.
+            client = getattr(self.db, 'client', None)
+            if client and hasattr(client, 'auth'):
+                try:
+                    # tenta a chamada padrão
+                    client.auth.sign_up({"email": email, "password": password, "options": {"data": {"full_name": nome}}})
+                except Exception:
+                    # fallback: outra assinatura possível
+                    try:
+                        client.auth.sign_up(email=email, password=password, user_metadata={"full_name": nome})
+                    except Exception:
+                        # se falhar, prossegue para o método local (register_user)
+                        raise
+
+                # se sign_up conseguiu, retorna True (o trigger no banco cria o perfil)
+                return True
+
+        except Exception:
+            # se qualquer erro ao usar Supabase Auth, voltamos ao método anterior
+            pass
+
+        # Caso o fluxo com Supabase Auth não esteja disponível ou falhe,
+        # armazenamos senha hash localmente (legacy) — essa inserção pode falhar se RLS estiver ativo.
         senha_hash = self.hash_password(password)
         success = self.db.register_user(nome=nome, email=email, senha_hash=senha_hash, papel=papel)
         return success
@@ -157,5 +188,11 @@ class AuthManager:
                 st.image(logo_path, use_container_width=True)
             else:
                 st.image("https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png", use_container_width=True)
-                st.warning("Logo local não encontrado em 'uploads_img/'. Usando imagem alternativa.")
+                export SUPABASE_URL="https://<SEU_PROJECT>.supabase.co"
+                export SUPABASE_KEY="<SUA_ANON_KEY>"
+                # opcional (recomendado para leitura / debug):
+                export SUPABASE_SERVICE_KEY="<SUA_SERVICE_ROLE_KEY>"                export SUPABASE_URL="https://<SEU_PROJECT>.supabase.co"
+                export SUPABASE_KEY="<SUA_ANON_KEY>"
+                # opcional (recomendado para leitura / debug):
+                export SUPABASE_SERVICE_KEY="<SUA_SERVICE_ROLE_KEY>"                st.warning("Logo local não encontrado em 'uploads_img/'. Usando imagem alternativa.")
             st.markdown('</div>', unsafe_allow_html=True)
